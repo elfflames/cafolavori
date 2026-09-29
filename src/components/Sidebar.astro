@@ -1,16 +1,24 @@
 ---
 import { getCollection } from 'astro:content';
-import { SIDEBAR_LINKS } from '../consts';
-import { getArticoli, vitaPersa } from '../lib/articoli';
+import { Image } from 'astro:assets';
+import { AMICI, CONTATTI, SIDEBAR_LINKS } from '../consts';
+import { getArticoli, mesi, permalink, tagCloud, vitaPersa } from '../lib/articoli';
+
+const banners = import.meta.glob<{ default: ImageMetadata }>('../assets/amici/*', { eager: true });
+const banner = (file: string) => banners[`../assets/amici/${file}`]?.default;
 
 const articoli = await getArticoli();
 const vita = vitaPersa(articoli);
+const recenti = articoli.slice(0, 5);
+const archivio = mesi(articoli);
+const cloud = tagCloud(articoli);
 
 const counts = new Map<string, number>();
 for (const a of articoli) for (const c of a.data.categories) counts.set(c.id, (counts.get(c.id) ?? 0) + 1);
 const categorie = (await getCollection('categorie'))
   .filter((c) => counts.has(c.id))
   .sort((a, b) => a.data.name.localeCompare(b.data.name, 'it'));
+const path = Astro.url.pathname;
 ---
 
 <aside class="sidebar" aria-label="Barra laterale">
@@ -23,21 +31,93 @@ const categorie = (await getCollection('categorie'))
   </section>
 
   <section class="block">
-    <ul class="block-links">
+    <ul class="block-list">
       {SIDEBAR_LINKS.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
     </ul>
   </section>
 
-  <section class="block">
-    <h2 class="block-title">CafoGeneri</h2>
-    <ul class="block-categories">
+  <nav class="vmenu" aria-label="Categorie">
+    <ul>
       {
         categorie.map((c) => (
           <li>
-            <a href={`/category/${c.id}/`}>{c.data.name}</a> <span class="count">{counts.get(c.id)}</span>
+            <a
+              href={`/category/${c.id}/`}
+              class:list={{ active: path.startsWith(`/category/${c.id}/`) }}
+              title={`${counts.get(c.id)} articoli`}
+            >
+              {c.data.name}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <section class="block">
+    <h2 class="block-title">Cafolavori Recenti</h2>
+    <ul class="block-list">
+      {recenti.map((a) => <li><a href={permalink(a)}>{a.data.title}</a></li>)}
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">RetroCafo</h2>
+    <ul class="block-list">
+      {
+        archivio.map((m) => (
+          <li>
+            <a href={m.href}>{m.label}</a>&nbsp;({m.items.length})
           </li>
         ))
       }
     </ul>
   </section>
+
+  <section class="block">
+    <h2 class="block-title">Amici</h2>
+    <div class="amici">
+      {
+        AMICI.map((a) => {
+          const img = banner(a.banner);
+          return (
+            <a href={a.href} title={a.name} target="_blank" rel="noopener noreferrer">
+              {img ? <Image src={img} alt={a.name} width={234} /> : a.name}
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">CafoCloud</h2>
+    <p class="tagcloud">
+      {
+        cloud.map((t) => (
+          <a href={`/tag/${t.slug}/`} class={`tag-${t.level}`} aria-label={`${t.name} (${t.count} articoli)`}>
+            {t.name}
+          </a>
+        ))
+      }
+    </p>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">Meta</h2>
+    <ul class="block-list">
+      <li><a href="/rss.xml">Voce <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+    </ul>
+  </section>
+
+  {
+    CONTATTI.href && (
+      <section class="block">
+        <h2 class="block-title">Contatti</h2>
+        <p class="block-text">
+          <a href={CONTATTI.href}>{CONTATTI.label}</a>
+        </p>
+      </section>
+    )
+  }
 </aside>

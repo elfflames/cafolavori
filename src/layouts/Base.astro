@@ -3,6 +3,7 @@ import Seo from '../components/Seo.astro';
 import Nav from '../components/Nav.astro';
 import Sidebar from '../components/Sidebar.astro';
 import { SITE } from '../consts';
+import rssIcon from '../assets/theme/rssicon.png';
 import '../styles/global.css';
 
 type Props = Parameters<typeof Seo>[0];
@@ -33,9 +34,8 @@ const year = new Date().getFullYear();
         <Sidebar />
       </div>
       <footer class="site-footer">
-        <p>
-          {SITE.name} – {SITE.tagline} · 2011–{year} · <a href="/rss.xml">RSS</a> · <a href="/staff/">Staff</a>
-        </p>
+        <a href="/rss.xml" class="rss-icon" title="Feed RSS"><img src={rssIcon.src} width="32" height="32" alt="RSS" /></a>
+        <p>Copyright © 2011–{year} {SITE.name} – {SITE.tagline}.</p>
       </footer>
     </div>
   </body>

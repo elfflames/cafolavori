@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Archivio from '../../../components/Archivio.astro';
+import { getArticoli, paginatePaths } from '../../../lib/articoli';
+
+// /author/elfflames/, /author/elfflames/page/2/…
+export const getStaticPaths = (async () => {
+  const articoli = await getArticoli();
+  return (await getCollection('autori')).flatMap((autore) => {
+    const items = articoli.filter((a) => a.data.author.id === autore.id);
+    if (!items.length) return [];
+    return paginatePaths(items).map(({ page, props }) => ({ params: { slug: autore.id, page }, props: { ...props, autore } }));
+  });
+}) satisfies GetStaticPaths;
+
+const { autore, ...pagination } = Astro.props;
+---
+
+<Archivio
+  base={`/author/${autore.id}/`}
+  {...pagination}
+  title={`Gli articoli di ${autore.data.name}`}
+  seoTitle={autore.data.name}
+  description={`Tutti i cafolavori recensiti da ${autore.data.name}.`}
+/>

@@ -393,7 +393,9 @@ const pages = posts.filter((p) => p.type === 'page' && p.status === 'publish');
 for (const u of users.values()) {
   const key = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
   const page = pages.find((p) => key(p.title) === key(u.name));
-  fs.writeFileSync(path.join(OUT.autori, `${u.slug}.yaml`), yaml.dump(clean({ name: page?.title ?? u.name, page: page?.slug })));
+  // Avatar recuperati a parte (uploads/avatars/post-avatar-*.png) e già copiati in src/assets/autori.
+  const avatar = fs.existsSync(path.join(ROOT, `src/assets/autori/${u.slug}.png`)) ? `../../assets/autori/${u.slug}.png` : undefined;
+  fs.writeFileSync(path.join(OUT.autori, `${u.slug}.yaml`), yaml.dump(clean({ name: page?.title ?? u.name, page: page?.slug, avatar })));
 }
 for (const tx of taxonomy.values()) {
   if (tx.taxonomy !== 'category' || tx.slug === 'senza-categoria') continue;

@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Archivio from '../../../components/Archivio.astro';
+import { getArticoli, paginatePaths, slugify, type Articolo } from '../../../lib/articoli';
+
+// /tag/horror/, /tag/horror/page/2/…
+export const getStaticPaths = (async () => {
+  const byTag = new Map<string, { name: string; items: Articolo[] }>();
+  for (const a of await getArticoli()) {
+    for (const name of a.data.tags) {
+      const slug = slugify(name);
+      if (!slug) continue;
+      const entry = byTag.get(slug) ?? { name, items: [] };
+      if (!entry.items.includes(a)) entry.items.push(a);
+      byTag.set(slug, entry);
+    }
+  }
+  return [...byTag].flatMap(([slug, { name, items }]) =>
+    paginatePaths(items).map(({ page, props }) => ({ params: { slug, page }, props: { ...props, name, total: items.length } })),
+  );
+}) satisfies GetStaticPaths;
+
+const { name, total, ...pagination } = Astro.props;
+// I tag con un solo articolo sono pagine "sottili": restano navigabili ma fuori dall'indice dei motori.
+---
+
+<Archivio
+  base={`/tag/${Astro.params.slug}/`}
+  {...pagination}
+  title={`Tag: ${name}`}
+  description={`Cafolavori con il tag ${name}.`}
+  noindex={total < 2}
+/>

@@ -11,7 +11,7 @@ export const SITE = {
   description: 'Il blog dove i film brutti si sentono a casa! Recensioni di cafolavori: film brutti, serie e flop cinematografici.',
   lang: 'it',
   locale: 'it_IT',
-  postsPerPage: 10,
+  postsPerPage: 5,
 };
 
 // Menu principale. `href` senza figli è un link semplice; con `children` diventa un sottomenu.
@@ -49,6 +49,16 @@ export const SIDEBAR_LINKS = [
   { label: 'Glossario', href: '/glossario/' },
   { label: 'Staff', href: '/staff/' },
 ];
+
+// Box "Amici" della sidebar (banner in src/assets/amici).
+export const AMICI = [
+  { name: "Pellicole Dall'Abisso", href: 'http://www.pellicoledallabisso.com/', banner: 'banner-pellicole-abisso.jpg' },
+  { name: 'Film per pochi - Raccolta di film ignorati dal mondo', href: 'http://www.filmperpochi.it/', banner: 'banner-film-per-pochi.png' },
+  { name: 'FilmBrutti.com - B-movie e disastri cinematografici', href: 'http://www.filmbrutti.com/', banner: 'filmbrutti.jpg' },
+];
+
+// Box "Contatti": lasciare href vuoto per nasconderlo (es. 'mailto:nome@dominio.it').
+export const CONTATTI = { label: 'Elfflames - Webmaster', href: '' };
 
 // Commenti nuovi via Giscus (GitHub Discussions). Finché repoId è vuoto il box non viene mostrato.
 // Valori da https://giscus.app dopo aver creato il repository pubblico delle discussioni.

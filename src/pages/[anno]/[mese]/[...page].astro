@@ -1,0 +1,22 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Archivio from '../../../components/Archivio.astro';
+import { getArticoli, mesi, paginatePaths } from '../../../lib/articoli';
+
+// Archivio mensile ("RetroCafo"): /2012/09/, /2012/09/page/2/…
+export const getStaticPaths = (async () =>
+  mesi(await getArticoli()).flatMap(({ anno, mese, label, items }) =>
+    paginatePaths(items).map(({ page, props }) => ({ params: { anno, mese, page }, props: { ...props, label } })),
+  )) satisfies GetStaticPaths;
+
+const { label, ...pagination } = Astro.props;
+const { anno, mese } = Astro.params;
+---
+
+<Archivio
+  base={`/${anno}/${mese}/`}
+  {...pagination}
+  title={`RetroCafo: ${label}`}
+  seoTitle={`Archivio ${label}`}
+  description={`I cafolavori pubblicati a ${label}.`}
+/>

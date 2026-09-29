@@ -118,6 +118,12 @@ export default config({
       schema: {
         name: fields.slug({ name: { label: 'Nome' } }),
         page: fields.relationship({ label: 'Pagina di presentazione', collection: 'pagine' }),
+        avatar: fields.image({
+          label: 'Avatar',
+          description: 'Mostrato accanto al titolo degli articoli (originali: 62×62 px)',
+          directory: 'src/assets/autori',
+          publicPath: '../../assets/autori/',
+        }),
       },
     }),
   },

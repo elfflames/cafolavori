@@ -1,9 +1,21 @@
 ---
-// Il "cartiglio" del tema originale (backtitle.jpg) con il titolo nel font Cafolavori.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// Il "cartiglio" del tema originale (backtitle.jpg) con il titolo nel font Cafolavori
+// e, per gli articoli, l'avatar dell'autore che sporge a sinistra.
 interface Props {
   level?: 'h1' | 'h2';
+  href?: string;
+  avatar?: ImageMetadata | null;
+  avatarAlt?: string;
 }
-const { level: Tag = 'h1' } = Astro.props;
+const { level: Tag = 'h1', href, avatar, avatarAlt = '' } = Astro.props;
 ---
 
-<Tag class="title-bar"><slot /></Tag>
+<div class:list={['title-bar', { 'has-avatar': avatar }]}>
+  {avatar && <Image src={avatar} alt={avatarAlt} width={62} height={62} class="title-avatar" />}
+  <Tag class="title-text">
+    {href ? <a href={href} rel="bookmark"><slot /></a> : <slot />}
+  </Tag>
+</div>

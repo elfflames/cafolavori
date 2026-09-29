@@ -62,3 +62,64 @@ export function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
+
+// Pagine di un elenco con lo schema di URL di WordPress: /base/, /base/page/2/, /base/page/3/…
+// Da usare con una rotta `[...page].astro`: il parametro è undefined per la prima pagina.
+export function paginatePaths<T>(items: T[], perPage = SITE.postsPerPage) {
+  const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+  return Array.from({ length: totalPages }, (_, i) => ({
+    page: i === 0 ? undefined : `page/${i + 1}`,
+    props: { items: items.slice(i * perPage, (i + 1) * perPage), current: i + 1, totalPages },
+  }));
+}
+
+const monthFormat = new Intl.DateTimeFormat(SITE.lang, { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+export function monthLabel(anno: string, mese: string): string {
+  return monthFormat.format(new Date(`${anno}-${mese}-15T12:00:00Z`));
+}
+
+// Archivio mensile ("RetroCafo"): mesi con almeno un articolo, dal più recente.
+export function mesi(articoli: Articolo[]) {
+  const byMonth = new Map<string, Articolo[]>();
+  for (const a of articoli) {
+    const key = a.data.date.slice(0, 7);
+    byMonth.set(key, [...(byMonth.get(key) ?? []), a]);
+  }
+  return [...byMonth]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([key, items]) => {
+      const [anno, mese] = key.split('-');
+      return { anno, mese, href: `/${anno}/${mese}/`, label: monthLabel(anno, mese), items };
+    });
+}
+
+// Nuvola di tag ("CafoCloud"): i più usati, con un livello 1–8 proporzionale all'uso
+// (classi CSS .tag-1…tag-8: niente style inline, che la CSP bloccherebbe).
+export function tagCloud(articoli: Articolo[], limit = 45) {
+  const counts = new Map<string, { name: string; count: number }>();
+  for (const a of articoli) {
+    for (const name of a.data.tags) {
+      const slug = slugify(name);
+      if (!slug) continue;
+      const entry = counts.get(slug) ?? { name, count: 0 };
+      entry.count++;
+      counts.set(slug, entry);
+    }
+  }
+  const top = [...counts].sort((a, b) => b[1].count - a[1].count).slice(0, limit);
+  const max = Math.max(...top.map(([, t]) => t.count), 1);
+  const min = Math.min(...top.map(([, t]) => t.count));
+  return top
+    .map(([slug, t]) => ({
+      slug,
+      name: t.name,
+      count: t.count,
+      level: max === min ? 4 : 1 + Math.round(((t.count - min) / (max - min)) * 7),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, SITE.lang));
+}
+
+export function commentiLabel(n: number): string {
+  return n === 0 ? 'Nessun commento' : n === 1 ? '1 commento' : `${n} commenti`;
+}

@@ -60,7 +60,7 @@ const pagine = defineCollection({
 
 const autori = defineCollection({
   loader: glob({ pattern: '*.yaml', base: './src/content/autori', generateId: byFileName }),
-  schema: z.object({ name: z.string(), page: text }),
+  schema: ({ image }) => z.object({ name: z.string(), page: text, avatar: image().nullish() }),
 });
 
 const categorie = defineCollection({

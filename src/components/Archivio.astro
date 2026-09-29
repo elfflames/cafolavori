@@ -1,24 +1,42 @@
 ---
 import Base from '../layouts/Base.astro';
 import TitleBar from './TitleBar.astro';
-import ArticoloCard from './ArticoloCard.astro';
+import Post from './Post.astro';
+import Paginazione from './Paginazione.astro';
 import type { Articolo } from '../lib/articoli';
 
+// Elenco di articoli completi con paginazione: home, categorie, tag, autori, archivio mensile.
 interface Props {
-  title: string;
+  base: string;
+  items: Articolo[];
+  current: number;
+  totalPages: number;
+  title?: string;
   intro?: string | null;
-  articoli: Articolo[];
   seoTitle?: string;
+  description?: string;
   noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title, intro, articoli, seoTitle, noindex } = Astro.props;
+const { base, items, current, totalPages, title, intro, seoTitle, description, noindex, jsonLd } = Astro.props;
+const pageSuffix = current > 1 ? ` – pagina ${current}` : '';
 ---
 
-<Base title={seoTitle ?? title} description={intro || `${title}: ${articoli.length} cafolavori recensiti.`} noindex={noindex}>
-  <TitleBar>{title}</TitleBar>
-  {intro && <p class="archivio-intro">{intro}</p>}
-  <div class="lista">
-    {articoli.map((a) => <ArticoloCard articolo={a} />)}
-  </div>
+<Base
+  title={(seoTitle ?? title) ? `${seoTitle ?? title}${pageSuffix}` : current > 1 ? `Pagina ${current}` : undefined}
+  description={description ?? intro ?? undefined}
+  noindex={noindex}
+  jsonLd={jsonLd}
+>
+  {
+    title && (
+      <div class="post archivio-header">
+        <TitleBar>{title}</TitleBar>
+        {intro && <p class="archivio-intro">{intro}</p>}
+      </div>
+    )
+  }
+  {items.map((a, i) => <Post articolo={a} eager={i === 0 && current === 1} />)}
+  <Paginazione base={base} current={current} totalPages={totalPages} />
 </Base>

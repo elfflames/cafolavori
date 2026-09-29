@@ -1,0 +1,97 @@
+---
+import { getEntries, getEntry, render } from 'astro:content';
+import TitleBar from './TitleBar.astro';
+import Scheda from './Scheda.astro';
+import dateIcon from '../assets/theme/postdateicon.png';
+import authorIcon from '../assets/theme/postauthoricon.png';
+import categoryIcon from '../assets/theme/postcategoryicon.png';
+import tagIcon from '../assets/theme/posttagicon.png';
+import commentsIcon from '../assets/theme/postcommentsicon.png';
+import { commentiLabel, formatDate, hasVoti, isoDate, permalink, slugify, type Articolo } from '../lib/articoli';
+
+// Un articolo completo, come nel loop di WordPress: usato sia nella pagina singola
+// sia negli elenchi (home, categorie, tag, autori, archivio mensile).
+interface Props {
+  articolo: Articolo;
+  single?: boolean;
+  eager?: boolean;
+}
+
+const { articolo, single = false, eager = false } = Astro.props;
+const { data } = articolo;
+const { Content } = await render(articolo);
+const autore = await getEntry(data.author);
+const categorie = await getEntries(data.categories);
+const commenti = (await getEntry('commenti', articolo.id))?.data.comments.length ?? 0;
+const href = permalink(articolo);
+const isReview = hasVoti(articolo) || !!data.scheda;
+const Heading = single ? 'h1' : 'h2';
+---
+
+<article class="post" data-pagefind-body={single ? '' : undefined}>
+  <TitleBar level={Heading} href={single ? undefined : href} avatar={autore?.data.avatar} avatarAlt={autore?.data.name}>
+    {data.title}
+  </TitleBar>
+  <p class="post-meta" data-pagefind-ignore>
+    <img src={dateIcon.src} width="17" height="18" alt="" />
+    <time datetime={isoDate(data.date)}>{formatDate(data.date)}</time>
+    {
+      autore && (
+        <>
+          {' | '}
+          <img src={authorIcon.src} width="18" height="18" alt="" />
+          Autore <a href={`/author/${autore.id}/`}>{autore.data.name}</a>
+        </>
+      )
+    }
+  </p>
+
+  {isReview && <Scheda articolo={articolo} eager={eager} />}
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  {data.verdetto && <p class="verdetto">“{data.verdetto.replace(/^[“"]|[”"]$/g, '')}”</p>}
+
+  <footer class="post-footer" data-pagefind-ignore>
+    {
+      categorie.length > 0 && (
+        <span>
+          <img src={categoryIcon.src} width="18" height="18" alt="" />
+          Pubblicato in{' '}
+          {categorie.map((c, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={`/category/${c.id}/`} rel="category tag">
+                {c.data.name}
+              </a>
+            </>
+          ))}
+          {' | '}
+        </span>
+      )
+    }
+    {
+      data.tags.length > 0 && (
+        <span>
+          <img src={tagIcon.src} width="18" height="18" alt="" />
+          Tag:{' '}
+          {data.tags.map((t, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={`/tag/${slugify(t)}/`} rel="tag">
+                {t}
+              </a>
+            </>
+          ))}
+          {' | '}
+        </span>
+      )
+    }
+    <span>
+      <img src={commentsIcon.src} width="18" height="18" alt="" />
+      <a href={`${href}#commenti`}>{commentiLabel(commenti)} »</a>
+    </span>
+  </footer>
+</article>

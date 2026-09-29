@@ -6,9 +6,11 @@ import type { Articolo } from '../lib/articoli';
 
 interface Props {
   articolo: Articolo;
+  eager?: boolean;
 }
 
-const { title, poster, voti, scheda } = Astro.props.articolo.data;
+const { articolo, eager = false } = Astro.props;
+const { title, poster, voti, scheda } = articolo.data;
 
 const righe: [string, string | null | undefined][] = [
   ['Titolo originale', scheda?.titoloOriginale],
@@ -29,7 +31,7 @@ const visibili = righe.filter(([, v]) => v);
   <figure class="locandina">
     {
       poster ? (
-        <Image src={poster} alt={`Locandina di ${title}`} widths={[200, 400]} sizes="200px" loading="eager" />
+        <Image src={poster} alt={`Locandina di ${title}`} widths={[200, 400]} sizes="200px" loading={eager ? 'eager' : 'lazy'} />
       ) : (
         <img src={placeholder.src} width="200" height="296" alt="Locandina non disponibile" />
       )

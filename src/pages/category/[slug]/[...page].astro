@@ -1,0 +1,26 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Archivio from '../../../components/Archivio.astro';
+import { getArticoli, paginatePaths } from '../../../lib/articoli';
+
+// /category/horror/, /category/horror/page/2/…
+export const getStaticPaths = (async () => {
+  const articoli = await getArticoli();
+  return (await getCollection('categorie')).flatMap((categoria) => {
+    const items = articoli.filter((a) => a.data.categories.some((c) => c.id === categoria.id));
+    if (!items.length) return [];
+    return paginatePaths(items).map(({ page, props }) => ({ params: { slug: categoria.id, page }, props: { ...props, categoria } }));
+  });
+}) satisfies GetStaticPaths;
+
+const { categoria, ...pagination } = Astro.props;
+---
+
+<Archivio
+  base={`/category/${categoria.id}/`}
+  {...pagination}
+  title={categoria.data.name}
+  intro={categoria.data.description}
+  description={categoria.data.description || `Cafolavori della categoria ${categoria.data.name}.`}
+/>

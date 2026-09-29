@@ -1,0 +1,66 @@
+---
+// Paginazione in stile WP-PageNavi: "1 di 21 · 1 2 3 4 5 … 10 15 20 … » Ultima »".
+interface Props {
+  base: string; // es. "/" oppure "/category/horror/"
+  current: number;
+  totalPages: number;
+}
+
+const { base, current, totalPages } = Astro.props;
+const url = (n: number) => (n === 1 ? base : `${base}page/${n}/`);
+
+const windowSize = 5;
+const start = Math.max(1, Math.min(current - 2, totalPages - windowSize + 1));
+const end = Math.min(totalPages, start + windowSize - 1);
+const inWindow = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+// Fino a 3 "salti" su multipli di 5 prima e dopo la finestra.
+const larger = (from: number, to: number, dir: 1 | -1) => {
+  const out: number[] = [];
+  for (let n = Math.ceil(from / 5) * 5; dir > 0 ? n <= to : n >= to; n += 5 * dir) {
+    if (n >= 1 && n <= totalPages && !inWindow.includes(n)) out.push(n);
+    if (out.length === 3) break;
+  }
+  return out;
+};
+const before = larger(Math.floor((start - 1) / 5) * 5, 5, -1).reverse();
+const after = larger(end + 1, totalPages, 1);
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagenavi" aria-label="Pagine">
+      <span class="pages">
+        {current} di {totalPages}
+      </span>
+      {current > 3 && <a href={url(1)}>« Prima</a>}
+      {current > 1 && (
+        <a href={url(current - 1)} rel="prev">
+          «
+        </a>
+      )}
+      {before.map((n) => (
+        <a href={url(n)}>{n}</a>
+      ))}
+      {before.length > 0 && <span class="extend">...</span>}
+      {inWindow.map((n) =>
+        n === current ? (
+          <span class="current" aria-current="page">
+            {n}
+          </span>
+        ) : (
+          <a href={url(n)}>{n}</a>
+        ),
+      )}
+      {after.length > 0 && <span class="extend">...</span>}
+      {after.map((n) => (
+        <a href={url(n)}>{n}</a>
+      ))}
+      {current < totalPages && (
+        <a href={url(current + 1)} rel="next">
+          »
+        </a>
+      )}
+      {current < totalPages && <a href={url(totalPages)}>Ultima »</a>}
+    </nav>
+  )
+}

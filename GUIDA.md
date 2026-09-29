@@ -93,8 +93,9 @@ Rotte (identiche a WordPress, così i vecchi link funzionano ancora):
 | -------------------------------- | ------------------------------------------- |
 | `/`, `/page/2/`…                 | `pages/index.astro`, `pages/page/[page].astro` |
 | `/2017/09/13/assassins-creed/`   | `pages/[anno]/[mese]/[giorno]/[slug].astro` |
-| `/category/`, `/category/horror/`| `pages/category/…`                          |
-| `/tag/<tag>/`, `/author/<nome>/` | `pages/tag/[slug].astro`, `pages/author/[slug].astro` |
+| `/2012/09/`, `/2012/09/page/2/`  | `pages/[anno]/[mese]/[...page].astro` (archivio mensile "RetroCafo") |
+| `/category/`, `/category/horror/page/2/` | `pages/category/…`                  |
+| `/tag/<tag>/`, `/author/<nome>/` (+ `/page/N/`) | `pages/tag/[slug]/[...page].astro`, `pages/author/[slug]/[...page].astro` |
 | `/glossario/`, `/staff/cater/`   | `pages/[...path].astro`                     |
 | `/rss.xml`, `/sitemap-index.xml`, `/robots.txt` | `pages/rss.xml.ts`, integrazione sitemap, `pages/robots.txt.ts` |
 
@@ -113,8 +114,19 @@ I componenti sono `.astro` (HTML + frontmatter TypeScript, niente JS al client s
 React in `astro.config.mjs` è caricata **solo in dev** (serve a Keystatic): per usare componenti React nel sito
 (`client:visible` ecc.) va spostata fuori dal blocco `isDev`. Per questo sito conviene evitarlo: meno JS, CSP più semplice.
 
+### Home ed elenchi
+Come nel vecchio WordPress, home e archivi mostrano gli **articoli completi**, 5 per pagina (`SITE.postsPerPage` in
+`src/consts.ts`), con la paginazione in stile WP-PageNavi. Il componente di un articolo è `src/components/Post.astro`
+(usato sia negli elenchi sia nella pagina singola), l'elenco paginato è `src/components/Archivio.astro`.
+
+### Avatar degli autori
+Keystatic → **Autori** → campo **Avatar** (originali 62×62 px, in `src/assets/autori/`). Compare accanto al titolo
+di ogni articolo dell'autore.
+
 ### Menu e sidebar
-`src/consts.ts` → `MENU` (voci e sottomenu), `SIDEBAR_LINKS`, `GENRE_EXCLUDED` (categorie che non sono "generi").
+`src/consts.ts` → `MENU` (voci e sottomenu), `SIDEBAR_LINKS`, `GENRE_EXCLUDED` (categorie che non sono "generi"),
+`AMICI` (banner del box "Amici", immagini in `src/assets/amici/`), `CONTATTI` (box "Contatti": nascosto finché
+`href` è vuoto). I box della sidebar sono in `src/components/Sidebar.astro`.
 
 ### Aggiungere un campo a una recensione
 Esempio: "Voto IMDb".

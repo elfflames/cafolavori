@@ -12,6 +12,7 @@ const categorie = (await getCollection('categorie'))
 ---
 
 <Base title="CafoGeneri" description="Tutti i generi dei cafolavori recensiti: horror, fantascienza, azione, alieni e altre perle.">
+  <div class="post">
   <TitleBar>CafoGeneri</TitleBar>
   <ul class="generi">
     {
@@ -22,4 +23,5 @@ const categorie = (await getCollection('categorie'))
       ))
     }
   </ul>
+  </div>
 </Base>
