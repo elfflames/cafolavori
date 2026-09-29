@@ -10,8 +10,12 @@ import pagefind from 'astro-pagefind';
 // così la build resta 100% statica e l'admin non esiste in produzione.
 const isDev = process.argv.includes('dev');
 
+// Indirizzo pubblico del sito (canonical, sitemap, RSS, Open Graph). Si imposta con la variabile SITE_URL
+// nella build di Cloudflare: così si passa dal dominio di test a quello definitivo senza toccare il codice.
+const site = process.env.SITE_URL || 'https://www.cafolavori.it';
+
 export default defineConfig({
-  site: 'https://www.cafolavori.it',
+  site,
   // Le API di Keystatic (/api/keystatic/tree…) sono senza slash finale: in dev non va forzato.
   trailingSlash: isDev ? 'ignore' : 'always',
   output: 'static',

@@ -153,6 +153,20 @@ server; Cloudflare serve `dist/` rispettando `_headers`, `_redirects` e `404.htm
 
 Prova in locale di quello che verrebbe caricato: `npm run build && npx wrangler deploy --dry-run`.
 
+### Dominio di test e migrazione al dominio definitivo
+
+L'indirizzo del sito (canonical, sitemap, RSS, Open Graph) viene dalla variabile di build **`SITE_URL`**
+(Worker → Impostazioni → Build → Variabili). Senza variabile vale `https://www.cafolavori.it`.
+Sui domini `*.workers.dev` / `*.pages.dev` il sito si mette da solo in `noindex` e `robots.txt` blocca i crawler,
+così la versione di test non finisce su Google.
+
+Per passare al dominio definitivo:
+1. Aggiungi il dominio all'account Cloudflare e imposta i nameserver presso il registrar.
+2. Worker → **Domini → Aggiungi dominio**: `www.tuodominio.it` (e il dominio nudo, con redirect al `www`).
+3. Cambia `SITE_URL` in `https://www.tuodominio.it` (o eliminala, se il dominio è `www.cafolavori.it`)
+   e rilancia la build (Distribuzioni → riesegui, oppure un push qualsiasi).
+4. Controlla `https://www.tuodominio.it/robots.txt` (deve dire `Allow`) e invia la sitemap a Google Search Console.
+
 La CI GitHub (`.github/workflows/ci.yml`) esegue `check` e `build` a ogni push e verifica che Keystatic
 non sia finito in `dist/`. Dependabot propone aggiornamenti settimanali delle dipendenze.
 

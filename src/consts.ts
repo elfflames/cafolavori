@@ -1,5 +1,11 @@
+// Viene da `site` in astro.config.mjs (variabile SITE_URL).
+const siteUrl = import.meta.env.SITE.replace(/\/$/, '');
+
+// Sui domini di test di Cloudflare il sito non va indicizzato: sul dominio definitivo sì, automaticamente.
+export const INDEXABLE = !/\.(workers|pages)\.dev$/.test(new URL(siteUrl).hostname);
+
 export const SITE = {
-  url: 'https://www.cafolavori.it',
+  url: siteUrl,
   name: 'Cafolavori',
   tagline: 'Il bello del brutto',
   description: 'Il blog dove i film brutti si sentono a casa! Recensioni di cafolavori: film brutti, serie e flop cinematografici.',

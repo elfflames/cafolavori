@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../consts';
+import { INDEXABLE, SITE } from '../consts';
 
 interface Props {
   title?: string;
@@ -20,7 +20,7 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex, follow" />}
+{(noindex || !INDEXABLE) && <meta name="robots" content="noindex, follow" />}
 
 <meta property="og:site_name" content={SITE.name} />
 <meta property="og:locale" content={SITE.locale} />
