@@ -9,6 +9,10 @@ updates:
         patterns: ['astro', '@astrojs/*']
       keystatic:
         patterns: ['@keystatic/*']
+    ignore:
+      # TypeScript 7 (compilatore in Go) non è ancora supportato da `astro check`.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
