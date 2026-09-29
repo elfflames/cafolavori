@@ -1,0 +1,9 @@
+---
+// Il "cartiglio" del tema originale (backtitle.jpg) con il titolo nel font Cafolavori.
+interface Props {
+  level?: 'h1' | 'h2';
+}
+const { level: Tag = 'h1' } = Astro.props;
+---
+
+<Tag class="title-bar"><slot /></Tag>

@@ -1,0 +1,33 @@
+---
+import { GISCUS } from '../consts';
+
+// Commenti nuovi tramite GitHub Discussions (https://giscus.app). Non mostrato finché
+// GISCUS in src/consts.ts non è configurato. Mappatura per pathname: un thread per URL.
+const enabled = GISCUS.repo && GISCUS.repoId && GISCUS.categoryId;
+---
+
+{
+  enabled && (
+    <section class="giscus-box" aria-label="Lascia un commento">
+      <h2>Dì la tua</h2>
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={GISCUS.repo}
+        data-repo-id={GISCUS.repoId}
+        data-category={GISCUS.category}
+        data-category-id={GISCUS.categoryId}
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light"
+        data-lang="it"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async
+      />
+    </section>
+  )
+}

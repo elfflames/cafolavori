@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import Voto from './Voto.astro';
+import placeholder from '../assets/theme/locandina-mancante.svg';
+import type { Articolo } from '../lib/articoli';
+
+interface Props {
+  articolo: Articolo;
+}
+
+const { title, poster, voti, scheda } = Astro.props.articolo.data;
+
+const righe: [string, string | null | undefined][] = [
+  ['Titolo originale', scheda?.titoloOriginale],
+  ['Regia', scheda?.regia],
+  ['Ideatore', scheda?.ideatore],
+  ['Cast', scheda?.cast],
+  ['Durata', scheda?.durata],
+  ['Numero stagioni', scheda?.stagioni],
+  ['Stato', scheda?.stato],
+  ['Nazionalità', scheda?.nazionalita],
+  ['Anno', scheda?.anno],
+  ['Frase del film', scheda?.frase && `“${scheda.frase}”`],
+];
+const visibili = righe.filter(([, v]) => v);
+---
+
+<div class="scheda">
+  <figure class="locandina">
+    {
+      poster ? (
+        <Image src={poster} alt={`Locandina di ${title}`} widths={[200, 400]} sizes="200px" loading="eager" />
+      ) : (
+        <img src={placeholder.src} width="200" height="296" alt="Locandina non disponibile" />
+      )
+    }
+  </figure>
+  <div class="scheda-info">
+    {
+      voti?.cafoneria != null && voti?.divertimento != null && (
+        <div class="valutazioni">
+          <div>
+            <span class="valutazioni-title">Cafoneria</span>
+            <Voto value={voti.cafoneria} kind="cafoneria" />
+          </div>
+          <div>
+            <span class="valutazioni-title">Divertimento</span>
+            <Voto value={voti.divertimento} kind="divertimento" />
+          </div>
+        </div>
+      )
+    }
+    {
+      visibili.length > 0 && (
+        <dl class="scheda-dati">
+          {visibili.map(([label, value]) => (
+            <div>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+  </div>
+</div>

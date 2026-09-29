@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import Search from 'astro-pagefind/components/Search.astro';
+import { GENRE_EXCLUDED, MENU } from '../consts';
+
+const generi = (await getCollection('categorie'))
+  .filter((c) => !GENRE_EXCLUDED.includes(c.id))
+  .sort((a, b) => a.data.name.localeCompare(b.data.name, 'it'))
+  .map((c) => ({ label: c.data.name, href: `/category/${c.id}/` }));
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<nav class="site-nav" aria-label="Menu principale">
+  <ul class="menu">
+    {
+      MENU.map((item) => {
+        const children = item.children === 'categories' ? generi : item.children;
+        return (
+          <li class:list={{ 'has-sub': !!children, active: isActive(item.href) }}>
+            <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+              {item.label}
+            </a>
+            {children && (
+              <ul class="submenu">
+                {children.map((c) => (
+                  <li>
+                    <a href={c.href}>{c.label}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+  <div class="search">
+    <Search searchboxOptions={{ placeholder: 'CerCafolavoro', 'show-sub-results': false }} />
+  </div>
+</nav>

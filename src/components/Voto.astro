@@ -1,0 +1,21 @@
+---
+import shit from '../assets/voti/shit.gif';
+import halfShit from '../assets/voti/halfShit.gif';
+import blankShit from '../assets/voti/blankShit.gif';
+import smile from '../assets/voti/smile.gif';
+import halfSmile from '../assets/voti/halfSmile.gif';
+import blankSmile from '../assets/voti/blankSmile.gif';
+
+interface Props {
+  value: number;
+  kind: 'cafoneria' | 'divertimento';
+}
+
+const { value, kind } = Astro.props;
+const icons = kind === 'cafoneria' ? [shit, halfShit, blankShit] : [smile, halfSmile, blankSmile];
+const steps = [1, 2, 3, 4, 5].map((i) => (value >= i ? icons[0] : value >= i - 0.5 ? icons[1] : icons[2]));
+---
+
+<span class="voto" role="img" aria-label={`${kind === 'cafoneria' ? 'Cafoneria' : 'Divertimento'}: ${value} su 5`}>
+  {steps.map((icon) => <img src={icon.src} width={icon.width} height={icon.height} alt="" />)}
+</span>

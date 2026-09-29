@@ -1,0 +1,21 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Archivio from '../../components/Archivio.astro';
+import { getArticoli } from '../../lib/articoli';
+
+export const getStaticPaths = (async () => {
+  const articoli = await getArticoli();
+  const categorie = await getCollection('categorie');
+  return categorie
+    .map((categoria) => ({
+      params: { slug: categoria.id },
+      props: { categoria, articoli: articoli.filter((a) => a.data.categories.some((c) => c.id === categoria.id)) },
+    }))
+    .filter(({ props }) => props.articoli.length > 0);
+}) satisfies GetStaticPaths;
+
+const { categoria, articoli } = Astro.props;
+---
+
+<Archivio title={categoria.data.name} intro={categoria.data.description} articoli={articoli} />

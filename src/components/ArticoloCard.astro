@@ -1,0 +1,35 @@
+---
+import { Image } from 'astro:assets';
+import Voto from './Voto.astro';
+import { description, formatDate, hasVoti, permalink, type Articolo } from '../lib/articoli';
+
+interface Props {
+  articolo: Articolo;
+}
+
+const { articolo } = Astro.props;
+const { title, date, poster, voti } = articolo.data;
+const href = permalink(articolo);
+---
+
+<article class="card">
+  {
+    poster && (
+      <a href={href} class="card-poster" tabindex="-1" aria-hidden="true">
+        <Image src={poster} alt="" widths={[110, 220]} sizes="110px" />
+      </a>
+    )
+  }
+  <div class="card-body">
+    <h2 class="card-title"><a href={href}>{title}</a></h2>
+    <p class="card-meta"><time datetime={date}>{formatDate(date)}</time></p>
+    {
+      hasVoti(articolo) && (
+        <p class="card-voti">
+          <Voto value={voti!.cafoneria!} kind="cafoneria" /> <Voto value={voti!.divertimento!} kind="divertimento" />
+        </p>
+      )
+    }
+    <p class="card-excerpt">{description(articolo)}</p>
+  </div>
+</article>

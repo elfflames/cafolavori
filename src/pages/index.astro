@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import ListaPaginata from '../components/ListaPaginata.astro';
+import { SITE } from '../consts';
+import { getArticoli } from '../lib/articoli';
+
+const articoli = await getArticoli();
+const totalPages = Math.ceil(articoli.length / SITE.postsPerPage);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  alternateName: `${SITE.name} – ${SITE.tagline}`,
+  url: SITE.url,
+  inLanguage: SITE.lang,
+  description: SITE.description,
+};
+---
+
+<Base jsonLd={jsonLd}>
+  <h1 class="visually-hidden">{SITE.name} – {SITE.tagline}</h1>
+  <ListaPaginata articoli={articoli.slice(0, SITE.postsPerPage)} page={1} totalPages={totalPages} />
+</Base>

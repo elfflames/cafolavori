@@ -1,0 +1,32 @@
+---
+import { formatDate } from '../lib/articoli';
+
+type Commento = { id: number; parent?: number; author: string; date: string; text: string };
+interface Props {
+  comments: Commento[];
+  all: Commento[];
+}
+
+const { comments, all } = Astro.props;
+---
+
+<ol class="commenti-lista">
+  {
+    comments.map((c) => {
+      const replies = all.filter((r) => r.parent === c.id);
+      return (
+        <li>
+          <article class="commento" id={`comment-${c.id}`}>
+            <header>
+              <strong>{c.author}</strong> · <time datetime={c.date}>{formatDate(c.date)}</time>
+            </header>
+            {c.text.split(/\n{2,}/).map((p) => (
+              <p>{p}</p>
+            ))}
+          </article>
+          {replies.length > 0 && <Astro.self comments={replies} all={all} />}
+        </li>
+      );
+    })
+  }
+</ol>

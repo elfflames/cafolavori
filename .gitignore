@@ -1,0 +1,22 @@
+# build
+dist/
+.astro/
+
+# dipendenze
+node_modules/
+
+# log e ambiente
+npm-debug.log*
+.env
+.env.*
+!.env.example
+
+# editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Il dump di WordPress contiene hash di password ed email: non deve mai finire nel repository.
+*.sql
+*.sql.gz

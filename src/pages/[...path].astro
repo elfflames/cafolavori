@@ -1,0 +1,44 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import TitleBar from '../components/TitleBar.astro';
+import Commenti from '../components/Commenti.astro';
+import { description, pagePath } from '../lib/articoli';
+
+// Pagine statiche (Glossario, Staff, La Lista…). Le sottopagine hanno l'URL /madre/figlia/.
+export const getStaticPaths = (async () => {
+  const pagine = await getCollection('pagine');
+  return pagine.map((pagina) => ({
+    params: { path: pagePath(pagina).slice(1, -1) },
+    props: {
+      pagina,
+      figlie: pagine.filter((p) => p.data.parent === pagina.id).sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0)),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { pagina, figlie } = Astro.props;
+const { Content } = await render(pagina);
+---
+
+<Base title={pagina.data.seo?.title || pagina.data.title} description={description(pagina)}>
+  <article class="post" data-pagefind-body>
+    <TitleBar>{pagina.data.title}</TitleBar>
+    <div class="prose">
+      <Content />
+    </div>
+    {
+      figlie.length > 0 && (
+        <ul class="sottopagine">
+          {figlie.map((f) => (
+            <li>
+              <a href={pagePath(f)}>{f.data.title}</a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+  <Commenti slug={pagina.id} />
+</Base>

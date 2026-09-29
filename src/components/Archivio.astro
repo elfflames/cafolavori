@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import TitleBar from './TitleBar.astro';
+import ArticoloCard from './ArticoloCard.astro';
+import type { Articolo } from '../lib/articoli';
+
+interface Props {
+  title: string;
+  intro?: string | null;
+  articoli: Articolo[];
+  seoTitle?: string;
+  noindex?: boolean;
+}
+
+const { title, intro, articoli, seoTitle, noindex } = Astro.props;
+---
+
+<Base title={seoTitle ?? title} description={intro || `${title}: ${articoli.length} cafolavori recensiti.`} noindex={noindex}>
+  <TitleBar>{title}</TitleBar>
+  {intro && <p class="archivio-intro">{intro}</p>}
+  <div class="lista">
+    {articoli.map((a) => <ArticoloCard articolo={a} />)}
+  </div>
+</Base>

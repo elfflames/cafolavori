@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import TitleBar from '../../components/TitleBar.astro';
+import { getArticoli } from '../../lib/articoli';
+
+const articoli = await getArticoli();
+const categorie = (await getCollection('categorie'))
+  .map((c) => ({ ...c, count: articoli.filter((a) => a.data.categories.some((x) => x.id === c.id)).length }))
+  .filter((c) => c.count > 0)
+  .sort((a, b) => a.data.name.localeCompare(b.data.name, 'it'));
+---
+
+<Base title="CafoGeneri" description="Tutti i generi dei cafolavori recensiti: horror, fantascienza, azione, alieni e altre perle.">
+  <TitleBar>CafoGeneri</TitleBar>
+  <ul class="generi">
+    {
+      categorie.map((c) => (
+        <li>
+          <a href={`/category/${c.id}/`}>{c.data.name}</a> <span class="count">{c.count}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

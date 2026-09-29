@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import { SIDEBAR_LINKS } from '../consts';
+import { getArticoli, vitaPersa } from '../lib/articoli';
+
+const articoli = await getArticoli();
+const vita = vitaPersa(articoli);
+
+const counts = new Map<string, number>();
+for (const a of articoli) for (const c of a.data.categories) counts.set(c.id, (counts.get(c.id) ?? 0) + 1);
+const categorie = (await getCollection('categorie'))
+  .filter((c) => counts.has(c.id))
+  .sort((a, b) => a.data.name.localeCompare(b.data.name, 'it'));
+---
+
+<aside class="sidebar" aria-label="Barra laterale">
+  <section class="block">
+    <h2 class="block-title">Vita Persa</h2>
+    <div class="vita-persa" title="Il tempo totale passato a guardare i film recensiti">
+      <span class="vp-label">Giorni</span><span class="vp-label">Ore</span><span class="vp-label">Minuti</span>
+      <span class="vp-value">{vita.giorni}</span><span class="vp-value">{vita.ore}</span><span class="vp-value">{vita.minuti}</span>
+    </div>
+  </section>
+
+  <section class="block">
+    <ul class="block-links">
+      {SIDEBAR_LINKS.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">CafoGeneri</h2>
+    <ul class="block-categories">
+      {
+        categorie.map((c) => (
+          <li>
+            <a href={`/category/${c.id}/`}>{c.data.name}</a> <span class="count">{counts.get(c.id)}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</aside>

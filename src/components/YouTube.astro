@@ -1,0 +1,28 @@
+---
+// Embed "leggero": mostra solo l'anteprima e carica il player (youtube-nocookie) al click.
+// Nessun cookie né richiesta a YouTube finché il visitatore non avvia il video.
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<div class="youtube">
+  <button type="button" class="youtube-play" data-id={id} aria-label="Guarda il trailer su YouTube">
+    <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt="" loading="lazy" width="480" height="360" />
+    <span class="youtube-icon" aria-hidden="true"></span>
+  </button>
+</div>
+
+<script>
+  document.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.youtube-play');
+    if (!button) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${button.dataset.id}?autoplay=1`;
+    iframe.title = 'Trailer su YouTube';
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    button.replaceWith(iframe);
+  });
+</script>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="296" viewBox="0 0 200 296">
+  <rect width="200" height="296" fill="#211e17"/>
+  <rect x="8" y="8" width="184" height="280" fill="none" stroke="#e59e12" stroke-width="2" stroke-dasharray="8 6"/>
+  <g fill="#e59e12">
+    <rect x="62" y="88" width="76" height="46" rx="3"/>
+    <path d="M62 72 L136 64 L138 80 L64 88 Z"/>
+    <path d="M78 70 L90 69 L82 85 L70 86 Z M102 67 L114 66 L106 82 L94 83 Z M126 65 L136 64 L130 79 L118 80 Z" fill="#211e17"/>
+  </g>
+  <g fill="#e59e12" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="100" y="170" font-size="17" font-weight="bold">Locandina</text>
+    <text x="100" y="192" font-size="17" font-weight="bold">dispersa</text>
+    <text x="100" y="222" font-size="12" fill="#d7b633">inghiottita dal</text>
+    <text x="100" y="238" font-size="12" fill="#d7b633">cafo-oblio</text>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+---
+import { getEntry } from 'astro:content';
+import CommentoThread from './CommentoThread.astro';
+
+// Commenti storici importati da WordPress, mostrati in sola lettura con le risposte annidate.
+interface Props {
+  slug: string;
+}
+
+const all = (await getEntry('commenti', Astro.props.slug))?.data.comments ?? [];
+const ids = new Set(all.map((c) => c.id));
+const roots = all.filter((c) => !c.parent || !ids.has(c.parent));
+---
+
+{
+  all.length > 0 && (
+    <section class="commenti" aria-labelledby="commenti-storici">
+      <h2 id="commenti-storici">
+        {all.length} {all.length === 1 ? 'commento' : 'commenti'} dall'archivio
+      </h2>
+      <CommentoThread comments={roots} all={all} />
+    </section>
+  )
+}

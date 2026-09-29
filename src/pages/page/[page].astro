@@ -1,0 +1,25 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import ListaPaginata from '../../components/ListaPaginata.astro';
+import { SITE } from '../../consts';
+import { getArticoli } from '../../lib/articoli';
+
+// Pagine 2..N della home, con lo stesso schema di URL di WordPress (/page/2/).
+export const getStaticPaths = (async () => {
+  const articoli = await getArticoli();
+  const totalPages = Math.ceil(articoli.length / SITE.postsPerPage);
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2;
+    const start = (page - 1) * SITE.postsPerPage;
+    return { params: { page: String(page) }, props: { articoli: articoli.slice(start, start + SITE.postsPerPage), page, totalPages } };
+  });
+}) satisfies GetStaticPaths;
+
+const { articoli, page, totalPages } = Astro.props;
+---
+
+<Base title={`Pagina ${page}`}>
+  <h1 class="visually-hidden">Articoli – pagina {page}</h1>
+  <ListaPaginata articoli={articoli} page={page} totalPages={totalPages} />
+</Base>

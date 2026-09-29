@@ -1,0 +1,42 @@
+---
+import Seo from '../components/Seo.astro';
+import Nav from '../components/Nav.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { SITE } from '../consts';
+import '../styles/global.css';
+
+type Props = Parameters<typeof Seo>[0];
+const props = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16" />
+    <Seo {...props} />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+    <header class="site-header">
+      <a class="logo-link" href="/" aria-label={`${SITE.name} – ${SITE.tagline}: torna alla home`}></a>
+    </header>
+    <div class="sheet">
+      <Nav />
+      <div class="layout">
+        <main id="contenuto" class="content">
+          <slot />
+        </main>
+        <Sidebar />
+      </div>
+      <footer class="site-footer">
+        <p>
+          {SITE.name} – {SITE.tagline} · 2011–{year} · <a href="/rss.xml">RSS</a> · <a href="/staff/">Staff</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

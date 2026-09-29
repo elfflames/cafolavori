@@ -1,0 +1,127 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getEntries, getEntry, render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Base from '../../../../layouts/Base.astro';
+import TitleBar from '../../../../components/TitleBar.astro';
+import Scheda from '../../../../components/Scheda.astro';
+import Commenti from '../../../../components/Commenti.astro';
+import Giscus from '../../../../components/Giscus.astro';
+import { SITE } from '../../../../consts';
+import { description, formatDate, getArticoli, hasVoti, isoDate, permalink, slugify, type Articolo } from '../../../../lib/articoli';
+
+export const getStaticPaths = (async () => {
+  const articoli = await getArticoli();
+  return articoli.map((articolo) => {
+    const [, anno, mese, giorno, slug] = permalink(articolo).split('/');
+    return { params: { anno, mese, giorno, slug }, props: { articolo } };
+  });
+}) satisfies GetStaticPaths;
+
+const { articolo } = Astro.props as { articolo: Articolo };
+const { data } = articolo;
+const { Content } = await render(articolo);
+const autore = await getEntry(data.author);
+const categorie = await getEntries(data.categories);
+const isReview = hasVoti(articolo) || !!data.scheda;
+
+const ogImage = data.poster ? (await getImage({ src: data.poster, width: 600, format: 'jpg' })).src : undefined;
+const url = new URL(permalink(articolo), SITE.url).href;
+const published = isoDate(data.date);
+const person = { '@type': 'Person', name: autore?.data.name ?? data.author.id };
+
+const jsonLd = hasVoti(articolo)
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Review',
+      name: data.title,
+      url,
+      datePublished: published,
+      inLanguage: SITE.lang,
+      author: person,
+      publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+      reviewBody: description(articolo),
+      itemReviewed: {
+        '@type': data.categories.some((c) => c.id === 'cafoserie') ? 'TVSeries' : 'Movie',
+        name: data.scheda?.titoloOriginale || data.title,
+        ...(data.scheda?.regia && { director: { '@type': 'Person', name: data.scheda.regia } }),
+        ...(ogImage && { image: new URL(ogImage, SITE.url).href }),
+      },
+      reviewRating: { '@type': 'Rating', ratingValue: data.voti!.divertimento, bestRating: 5, worstRating: 0 },
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: data.title,
+      url,
+      datePublished: published,
+      inLanguage: SITE.lang,
+      author: person,
+      ...(ogImage && { image: new URL(ogImage, SITE.url).href }),
+    };
+---
+
+<Base
+  title={data.seo?.title || data.title}
+  description={description(articolo)}
+  image={ogImage}
+  type="article"
+  published={published}
+  jsonLd={jsonLd}
+>
+  <article class="post" data-pagefind-body>
+    <TitleBar>{data.title}</TitleBar>
+    <p class="post-meta" data-pagefind-ignore>
+      <span class="meta-date"><time datetime={published}>{formatDate(data.date)}</time></span>
+      {
+        autore && (
+          <span class="meta-author">
+            Autore <a href={`/author/${autore.id}/`}>{autore.data.name}</a>
+          </span>
+        )
+      }
+    </p>
+
+    {isReview && <Scheda articolo={articolo} />}
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {data.verdetto && <p class="verdetto">{data.verdetto}</p>}
+
+    <footer class="post-footer" data-pagefind-ignore>
+      {
+        categorie.length > 0 && (
+          <p class="meta-categories">
+            Categorie:{' '}
+            {categorie.map((c, i) => (
+              <>
+                {i > 0 && ', '}
+                <a href={`/category/${c.id}/`}>{c.data.name}</a>
+              </>
+            ))}
+          </p>
+        )
+      }
+      {
+        data.tags.length > 0 && (
+          <p class="meta-tags">
+            Tag:{' '}
+            {data.tags.map((t, i) => (
+              <>
+                {i > 0 && ', '}
+                <a href={`/tag/${slugify(t)}/`}>{t}</a>
+              </>
+            ))}
+          </p>
+        )
+      }
+    </footer>
+  </article>
+
+  <div data-pagefind-ignore>
+    <Commenti slug={articolo.id} />
+    <Giscus />
+  </div>
+</Base>
