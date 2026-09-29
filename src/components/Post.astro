@@ -1,5 +1,5 @@
 ---
-import { getEntries, getEntry, render } from 'astro:content';
+import { getCollection, getEntries, getEntry, render } from 'astro:content';
 import TitleBar from './TitleBar.astro';
 import Scheda from './Scheda.astro';
 import dateIcon from '../assets/theme/postdateicon.png';
@@ -22,7 +22,8 @@ const { data } = articolo;
 const { Content } = await render(articolo);
 const autore = await getEntry(data.author);
 const categorie = await getEntries(data.categories);
-const commenti = (await getEntry('commenti', articolo.id))?.data.comments.length ?? 0;
+// getCollection invece di getEntry: molti articoli non hanno commenti storici e getEntry lo segnala come avviso.
+const commenti = (await getCollection('commenti', (c) => c.id === articolo.id))[0]?.data.comments.length ?? 0;
 const href = permalink(articolo);
 const isReview = hasVoti(articolo) || !!data.scheda;
 const Heading = single ? 'h1' : 'h2';

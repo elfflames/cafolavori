@@ -1,5 +1,5 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import CommentoThread from './CommentoThread.astro';
 
 // Commenti storici importati da WordPress, mostrati in sola lettura con le risposte annidate.
@@ -7,7 +7,7 @@ interface Props {
   slug: string;
 }
 
-const all = (await getEntry('commenti', Astro.props.slug))?.data.comments ?? [];
+const all = (await getCollection('commenti', (c) => c.id === Astro.props.slug))[0]?.data.comments ?? [];
 const ids = new Set(all.map((c) => c.id));
 const roots = all.filter((c) => !c.parent || !ids.has(c.parent));
 ---
