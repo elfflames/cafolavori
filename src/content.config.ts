@@ -8,8 +8,13 @@ import { z } from 'astro/zod';
 // Id = nome del file, identico allo slug di Keystatic e al vecchio slug WordPress.
 const byFileName = ({ entry }: { entry: string }) => entry.replace(/\.(mdoc|ya?ml|json)$/, '');
 
-// Data "naive" nel fuso di Roma, come la scrive il campo datetime di Keystatic.
-const datetime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/, 'formato atteso AAAA-MM-GGTHH:MM');
+// Data "naive" (ora di Roma) normalizzata in "AAAA-MM-GGTHH:MM". Gli articoli importati la hanno così,
+// mentre Keystatic salva le stesse cifre in formato ISO ("…T10:47:00.000Z") che lo YAML legge come Date:
+// in entrambi i casi si prendono le cifre così come sono, senza conversioni di fuso (URL e date invariati).
+const datetime = z
+  .union([z.date(), z.string()])
+  .transform((v) => (typeof v === 'string' ? v : v.toISOString()).slice(0, 16))
+  .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'formato atteso AAAA-MM-GGTHH:MM'));
 const voto = z.number().min(0).max(5).multipleOf(0.5);
 // Keystatic salva i campi vuoti come null o "": vanno accettati come "assenti".
 const text = z.string().nullish();
