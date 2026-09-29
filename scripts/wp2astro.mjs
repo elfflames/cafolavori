@@ -156,8 +156,8 @@ function autop(html) {
 function convertBody(raw, { slug, assetsDir, isReview, report }) {
   const out = { voti: null, scheda: {}, poster: null, verdetto: null };
 
-  const r1 = raw.match(/\[rating:([\d.]+)\]/);
-  const r2 = raw.match(/\[rating2:([\d.]+)\]/);
+  const r1 = raw.match(/\[rating:\s*([\d.]+)\]/);
+  const r2 = raw.match(/\[rating2:\s*([\d.]+)\]/);
   if (r1 || r2) out.voti = { cafoneria: Number(r1?.[1] ?? 0), divertimento: Number(r2?.[1] ?? 0) };
 
   let html = raw
