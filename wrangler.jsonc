@@ -1,0 +1,11 @@
+// Deploy su Cloudflare Workers come sito solo statico: nessun "main" = nessun codice server,
+// Cloudflare serve i file di dist/ (con _headers, _redirects e 404.html).
+{
+  "name": "cafolavori",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
