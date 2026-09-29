@@ -53,8 +53,8 @@ export const SIDEBAR_LINKS = [
 // Commenti nuovi via Giscus (GitHub Discussions). Finché repoId è vuoto il box non viene mostrato.
 // Valori da https://giscus.app dopo aver creato il repository pubblico delle discussioni.
 export const GISCUS = {
-  repo: '',
-  repoId: '',
+  repo: 'elfflames/cafolavori',
+  repoId: 'R_kgDOUyNnSw',
   category: 'Commenti',
-  categoryId: '',
+  categoryId: 'DIC_kwDOUyNnS84DGqC6',
 };

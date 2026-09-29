@@ -38,7 +38,7 @@ const visibili = righe.filter(([, v]) => v);
   <div class="scheda-info">
     {
       voti?.cafoneria != null && voti?.divertimento != null && (
-        <div class="valutazioni">
+        <div class="valutazioni" data-pagefind-ignore>
           <div>
             <span class="valutazioni-title">Cafoneria</span>
             <Voto value={voti.cafoneria} kind="cafoneria" />

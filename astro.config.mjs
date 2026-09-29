@@ -38,8 +38,9 @@ export default defineConfig({
         "form-action 'self'",
         "object-src 'none'",
       ],
-      // Pagefind usa WebAssembly; Giscus carica il suo script dal proprio dominio.
+      // Pagefind usa WebAssembly; Giscus carica script e foglio di stile dal proprio dominio.
       scriptDirective: { resources: ["'self'", "'wasm-unsafe-eval'", 'https://giscus.app'] },
+      styleDirective: { resources: ["'self'", 'https://giscus.app'] },
     },
   },
   // Niente codice da evidenziare, e Shiki usa stili inline incompatibili con la CSP.
