@@ -1,7 +1,7 @@
 # Cafolavori.it – Il bello del brutto
 
 Il blog dove i film brutti si sentono a casa, ricostruito (2011–2017) da un backup WordPress come sito statico
-**Astro + Keystatic**, pubblicato su **Cloudflare Pages**.
+**Astro + Keystatic**, pubblicato su **Cloudflare Workers (asset statici, `wrangler.jsonc`)**.
 
 ```bash
 nvm use && npm install

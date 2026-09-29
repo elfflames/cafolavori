@@ -1,7 +1,7 @@
 ## Progetto
 
 Ricostruzione statica del blog WordPress cafolavori.it: Astro 7 + Keystatic (solo in dev, storage locale) + Markdoc,
-deploy su Cloudflare Pages. Documentazione per l'utente in `GUIDA.md`.
+deploy su Cloudflare Workers (asset statici, `wrangler.jsonc`). Documentazione per l'utente in `GUIDA.md`.
 
 - Contenuti in `src/content/` (`.mdoc` con frontmatter, `.yaml`), commenti storici in `src/data/commenti/`.
 - Ogni campo esiste due volte: `keystatic.config.ts` (form admin) e `src/content.config.ts` (Zod, usa `.nullish()`

@@ -1,13 +1,13 @@
 # Cafolavori – guida all'uso e alla personalizzazione
 
 Sito statico generato con **Astro 7**. I contenuti si gestiscono con **Keystatic** (admin React che scrive file nel repo)
-e il sito viene pubblicato su **Cloudflare Pages**. In produzione ci sono solo file HTML/CSS/JS statici: niente PHP,
+e il sito viene pubblicato su **Cloudflare Workers** (solo asset statici). In produzione ci sono solo file HTML/CSS/JS statici: niente PHP,
 database, login o endpoint da attaccare.
 
 ```
 PC locale ── npm run dev ──► http://127.0.0.1:4321/keystatic  (admin, scrive src/content/**)
      │
-     └─ git commit + push ──► GitHub (repo privato) ──► Cloudflare Pages: npm run build ──► CDN
+     └─ git commit + push ──► GitHub (repo privato) ──► Cloudflare Workers Builds: npm run build ──► CDN
 ```
 
 ---
@@ -56,7 +56,7 @@ Pubblica:
 git add -A && git commit -m "Recensione: Titolo del film" && git push
 ```
 
-Cloudflare Pages ricostruisce e pubblica in ~1 minuto. Puoi anche scrivere/modificare i file `.mdoc` a mano in VS Code:
+Cloudflare ricostruisce e pubblica in ~1–2 minuti. Puoi anche scrivere/modificare i file `.mdoc` a mano in VS Code:
 sono Markdown con frontmatter YAML ([sintassi Markdoc](https://markdoc.dev/docs/syntax)).
 
 ---
@@ -82,6 +82,7 @@ src/layouts/Base.astro  scheletro della pagina
 src/pages/              routing a file (vedi sotto)
 src/styles/global.css   tutto il tema
 public/_headers         header di sicurezza per Cloudflare
+wrangler.jsonc          deploy su Cloudflare Workers (solo asset statici)
 public/_redirects       redirect 301 (vecchi slug, feed WordPress)
 scripts/wp2astro.mjs    conversione una tantum dal dump SQL
 ```
@@ -138,19 +139,19 @@ Keystatic scrive il file, Zod lo valida in build: se i due schemi divergono, `np
 
 ---
 
-## 5. Pubblicazione su Cloudflare Pages (una tantum)
+## 5. Pubblicazione su Cloudflare (Workers, sito statico)
 
-1. **Repo GitHub privato**: crea `cafolavori` su GitHub (privato), poi:
-   ```bash
-   git remote add origin git@github.com:<utente>/cafolavori.git
-   git add -A && git commit -m "Primo import da WordPress" && git push -u origin main
-   ```
-2. **Cloudflare** → Workers & Pages → Create → Pages → *Connect to Git* → scegli il repo.
-   - Framework preset: **Astro** · Build command: `npm run build` · Output: `dist`
-   - Environment variables: `NODE_VERSION` = `22`
-3. **Dominio**: Pages → Custom domains → `www.cafolavori.it` (e `cafolavori.it`, con redirect al `www`).
-   Il modo più semplice è spostare i DNS del dominio su Cloudflare (piano free): HTTPS è automatico.
-4. Ogni `git push` su `main` pubblica. Le pull request ottengono un'anteprima su un URL `*.pages.dev`.
+Il sito è pubblicato come **Worker con soli asset statici** (`wrangler.jsonc`: nessun `main`, quindi nessun codice
+server; Cloudflare serve `dist/` rispettando `_headers`, `_redirects` e `404.html`).
+
+- Progetto: Cloudflare → **Compute → Workers e Pages → cafolavori**, collegato a `elfflames/cafolavori` (solo quel repo).
+- Build: `npm run build`, deploy: `npx wrangler deploy`, variabile `NODE_VERSION=22`.
+- URL: <https://cafolavori.danilo-guidi.workers.dev> (più gli URL di anteprima per i branch diversi da `main`).
+- Ogni `git push` su `main` ricostruisce e pubblica. Storico e rollback: scheda **Distribuzioni**.
+- Dominio personalizzato: scheda **Domini → Aggiungi dominio** (il dominio deve essere prima aggiunto all'account
+  Cloudflare, con i nameserver di Cloudflare impostati presso il registrar).
+
+Prova in locale di quello che verrebbe caricato: `npm run build && npx wrangler deploy --dry-run`.
 
 La CI GitHub (`.github/workflows/ci.yml`) esegue `check` e `build` a ogni push e verifica che Keystatic
 non sia finito in `dist/`. Dependabot propone aggiornamenti settimanali delle dipendenze.
