@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
-    "import:wp": "node scripts/wp2astro.mjs ../db/database-backup-20190405-120830-hwghvcttrv.sql ../cafolavori/cafolavori.it/wp-content/uploads"
+    "import:wp": "node scripts/wp2astro.mjs ../db/database-backup-20190405-120830-hwghvcttrv.sql ../cafolavori/cafolavori.it/wp-content/uploads",
+    "build:admin": "CAFO_ADMIN=1 astro build",
+    "deploy:admin": "wrangler deploy"
   },
   "dependencies": {
     "@astrojs/markdoc": "^2.0.9",
@@ -30,12 +32,14 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@astrojs/cloudflare": "^14.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "cheerio": "^1.2.0",
     "js-yaml": "^5.4.2",
     "turndown": "^7.2.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.147.0"
   },
   "private": true
 }

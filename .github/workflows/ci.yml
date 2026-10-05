@@ -22,3 +22,7 @@ jobs:
       - run: npm run build
       - name: L'admin Keystatic non deve finire in produzione
         run: "! grep -rqi keystatic dist/"
+      - name: Build dell'admin online (Worker cafolavori-admin)
+        run: rm -rf dist && npm run build:admin
+      - name: L'admin non deve richiedere binding (KV, D1…) oltre agli asset
+        run: npx wrangler deploy --dry-run | tee /tmp/dry-run.log && ! grep -E "KV Namespace|D1 Database|R2 Bucket" /tmp/dry-run.log

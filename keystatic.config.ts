@@ -1,8 +1,10 @@
 import { collection, config, fields } from '@keystatic/core';
 import { block } from '@keystatic/core/content-components';
 
-// Admin dei contenuti: gira solo con `npm run dev` su http://127.0.0.1:4321/keystatic
-// e scrive i file direttamente in src/content (storage locale, niente login né server in produzione).
+// Admin dei contenuti, in due modalità:
+// - `npm run dev` → http://127.0.0.1:4321/keystatic, scrive i file direttamente in src/content (storage locale);
+// - admin online (Worker "cafolavori-admin", build con CAFO_ADMIN=1) → login GitHub, ogni "Save" è un commit
+//   sul repository. Il sito pubblico non include mai questo file.
 // Ogni campo qui deve avere il corrispettivo nello schema Zod di src/content.config.ts.
 
 const voto = (label: string) =>
@@ -24,7 +26,7 @@ const components = {
 };
 
 export default config({
-  storage: { kind: 'local' },
+  storage: import.meta.env.DEV ? { kind: 'local' } : { kind: 'github', repo: 'elfflames/cafolavori' },
   ui: {
     brand: { name: 'Cafolavori' },
     navigation: {

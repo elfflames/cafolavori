@@ -1,6 +1,6 @@
 ## Progetto
 
-Ricostruzione statica del blog WordPress cafolavori.it: Astro 7 + Keystatic (solo in dev, storage locale) + Markdoc,
+Ricostruzione statica del blog WordPress cafolavori.it: Astro 7 + Keystatic (locale in dev, GitHub nell'admin online) + Markdoc,
 deploy su Cloudflare Workers (asset statici, `wrangler.jsonc`). Documentazione per l'utente in `GUIDA.md`.
 
 - Contenuti in `src/content/` (`.mdoc` con frontmatter, `.yaml`), commenti storici in `src/data/commenti/`.
@@ -8,7 +8,10 @@ deploy su Cloudflare Workers (asset statici, `wrangler.jsonc`). Documentazione p
   perché Keystatic salva i campi vuoti come null/""). Tenerli allineati.
 - URL identici a WordPress (`/AAAA/MM/GG/slug/`, `/category/`, `/tag/`, `/author/`): non cambiare lo schema.
   Le date sono stringhe naive Europe/Rome: usare gli helper di `src/lib/articoli.ts`, non `new Date(data)`.
-- Keystatic è caricato solo con `astro dev` (inietta route server); `trailingSlash` è `ignore` in dev per le sue API.
+- Tre modalità in `astro.config.mjs`: `astro dev` (Keystatic storage locale), build pubblica (statica, CSP, niente
+  Keystatic → Worker `cafolavori`, `wrangler.jsonc`), build admin `CAFO_ADMIN=1` (adapter `@astrojs/cloudflare`,
+  Keystatic storage GitHub, niente CSP, `session: false` → Worker `cafolavori-admin`, `wrangler.admin.jsonc`).
+  `trailingSlash` è `ignore` dove c'è Keystatic (le sue API sono senza slash).
 - CSP con hash generata da Astro (`security.csp`): niente script/stili inline non processati da Astro, niente Shiki.
 - `scripts/wp2astro.mjs` rigenera da zero i contenuti: non lanciarlo dopo modifiche fatte da Keystatic.
 - Il dump SQL (fuori dal repo, in `../db/`) contiene dati personali: mai copiarlo nel repo.

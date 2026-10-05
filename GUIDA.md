@@ -5,9 +5,12 @@ e il sito viene pubblicato su **Cloudflare Workers** (solo asset statici). In pr
 database, login o endpoint da attaccare.
 
 ```
-PC locale ── npm run dev ──► http://127.0.0.1:4321/keystatic  (admin, scrive src/content/**)
-     │
-     └─ git commit + push ──► GitHub (repo privato) ──► Cloudflare Workers Builds: npm run build ──► CDN
+Da qualsiasi browser ── https://cafolavori-admin.danilo-guidi.workers.dev/keystatic
+     │  Cloudflare Access (codice via email) → login GitHub → "Save" = commit sul repo
+     ▼
+GitHub (elfflames/cafolavori) ──► Workers Builds: npm run build ──► sito pubblico (solo file statici)
+
+PC locale ── npm run dev ──► http://127.0.0.1:4321/keystatic  (scrive su disco, poi git push)
 ```
 
 ---
@@ -27,6 +30,7 @@ npm run dev        # sito su http://127.0.0.1:4321, admin su http://127.0.0.1:43
 | `npm run build`      | Build di produzione in `dist/` + indice di ricerca Pagefind              |
 | `npm run preview`    | Serve `dist/` in locale: è il sito esattamente come andrà online         |
 | `npm run check`      | Type-check di componenti e schemi (`astro check`)                        |
+| `npm run build:admin`| Build dell'admin online (Worker `cafolavori-admin`, vedi §5)             |
 | `npm run import:wp`  | **Rigenera** tutti i contenuti dal dump WordPress (sovrascrive! vedi §8) |
 
 > Il server di sviluppo ascolta solo su `127.0.0.1`: l'admin non è raggiungibile da altre macchine della rete.
@@ -35,7 +39,17 @@ npm run dev        # sito su http://127.0.0.1:4321, admin su http://127.0.0.1:43
 
 ## 2. Scrivere e modificare i contenuti (Keystatic)
 
-1. `npm run dev` e apri <http://127.0.0.1:4321/keystatic>.
+Due modi, stessa interfaccia:
+
+- **Online, da qualsiasi PC** (nessuna installazione): <https://cafolavori-admin.danilo-guidi.workers.dev/keystatic>.
+  Accesso con codice via email (Cloudflare Access), poi **Log in with GitHub**. Ogni **Save** crea un commit su
+  GitHub e il sito si aggiorna da solo in 1–2 minuti: niente `git push`. Le bozze non vengono pubblicate.
+  Dopo aver salvato online, sul PC fai `git pull` prima di modificare in locale.
+- **In locale**: `npm run dev` e <http://127.0.0.1:4321/keystatic>; salva su disco, poi si pubblica con `git push`.
+
+Passi (uguali nei due modi):
+
+1. Apri Keystatic.
 2. **Articoli e recensioni → Add** (o apri una voce esistente).
 3. Compila i campi a destra:
    - **Titolo / Slug**: lo slug diventa l'URL `/AAAA/MM/GG/slug/`. Per gli articoli vecchi **non cambiarlo**,
@@ -47,10 +61,10 @@ npm run dev        # sito su http://127.0.0.1:4321, admin su http://127.0.0.1:43
    - **Scheda del film**: compila **Durata in minuti** per far crescere il contatore "Vita Persa".
 4. Nel testo: la toolbar gestisce titoli, grassetti, liste, link, immagini. **+ → Video YouTube** inserisce un trailer
    (solo l'ID, es. `wRyDVykI-EA`).
-5. **Save**. Keystatic scrive `src/content/articoli/<slug>.mdoc` e le immagini in `src/assets/articoli/<slug>/`;
-   la pagina in dev si aggiorna da sola.
+5. **Save**. Keystatic scrive `src/content/articoli/<slug>.mdoc` e le immagini in `src/assets/articoli/<slug>/`
+   (online: con un commit; in locale: su disco, e la pagina in dev si aggiorna da sola).
 
-Pubblica:
+Pubblica (solo per le modifiche fatte in locale):
 
 ```bash
 git add -A && git commit -m "Recensione: Titolo del film" && git push
@@ -165,6 +179,32 @@ server; Cloudflare serve `dist/` rispettando `_headers`, `_redirects` e `404.htm
 
 Prova in locale di quello che verrebbe caricato: `npm run build && npx wrangler deploy --dry-run`.
 
+### Admin online (secondo Worker `cafolavori-admin`)
+
+Stesso repository, secondo Worker con build e configurazione proprie:
+
+| | Sito pubblico `cafolavori` | Admin `cafolavori-admin` |
+|---|---|---|
+| Build | `npm run build` | `npm run build:admin` (`CAFO_ADMIN=1`) |
+| Deploy | `npx wrangler deploy` (`wrangler.jsonc`) | `npm run deploy:admin` (`wrangler.admin.jsonc`, via `@astrojs/cloudflare`) |
+| Contenuto | solo file statici, CSP stretta | sito + Keystatic (rotte `/keystatic`, `/api/keystatic/*` on-demand) |
+| Protezione | pubblico | **Cloudflare Access** + login GitHub |
+
+Configurazione (già fatta, qui per riferimento):
+- **GitHub App** `cafolavori-keystatic` (github.com/settings/apps): callback
+  `https://cafolavori-admin.danilo-guidi.workers.dev/api/keystatic/github/oauth/callback`, permessi
+  Contents read & write, Pull requests read & write, Metadata read; installata solo su `elfflames/cafolavori`.
+- Worker admin → **Impostazioni → Build → Variabili**: `NODE_VERSION=22`,
+  `SITE_URL=https://cafolavori-admin.danilo-guidi.workers.dev`, `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG=cafolavori-keystatic`.
+- Worker admin → **Impostazioni → Variabili e segreti** (tipo *Secret*): `KEYSTATIC_GITHUB_CLIENT_ID`,
+  `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` (`openssl rand -hex 32`).
+- **Cloudflare Access** sull'URL workers.dev dell'admin (e sugli URL di anteprima), policy *Allow* per email.
+
+Aggiungere una persona allo staff: invitala come collaboratore del repo GitHub (Settings → Collaborators, ruolo
+*Write*) **e** aggiungi la sua email alla policy di Access. Toglierla: l'inverso.
+Ruotare i segreti: rigenera il client secret nella GitHub App e/o un nuovo `KEYSTATIC_SECRET`, aggiornali nel Worker
+(chi è collegato dovrà rifare il login). Spegnere l'admin: elimina il Worker `cafolavori-admin`; il sito non cambia.
+
 ### Dominio di test e migrazione al dominio definitivo
 
 L'indirizzo del sito (canonical, sitemap, RSS, Open Graph) viene dalla variabile di build **`SITE_URL`**
@@ -224,8 +264,10 @@ Il dump SQL contiene hash delle password ed email: resta fuori dal repo (`.gitig
 ## 9. Sicurezza: cosa è stato fatto e cosa tocca a te
 
 Fatto nel progetto:
-- Sito **solo statico**: nessuna superficie d'attacco lato server. L'admin Keystatic esiste solo sul tuo PC
-  (integrazione caricata solo con `astro dev`, server legato a `127.0.0.1`).
+- Sito **solo statico**: nessuna superficie d'attacco lato server. L'admin non è nel sito pubblico: esiste solo in
+  locale (`astro dev`, legato a `127.0.0.1`) e nel Worker separato `cafolavori-admin`, protetto da Cloudflare Access
+  e dal login GitHub (può salvare solo chi ha accesso in scrittura al repo). La CI verifica che nel sito pubblico
+  non ci sia traccia di Keystatic.
 - **CSP** generata da Astro con hash di script e stili (niente `unsafe-inline`), origini esterne ridotte a
   `i.ytimg.com`, `youtube-nocookie.com` e `giscus.app`. Header extra in `public/_headers`: HSTS, `frame-ancestors 'none'`,
   `nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP.

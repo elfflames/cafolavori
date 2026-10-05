@@ -20,3 +20,8 @@ npm-debug.log*
 # Il dump di WordPress contiene hash di password ed email: non deve mai finire nel repository.
 *.sql
 *.sql.gz
+
+# Cloudflare / wrangler (build admin)
+.wrangler/
+.dev.vars
+.dev.vars.*

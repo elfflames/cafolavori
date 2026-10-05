@@ -1,0 +1,10 @@
+// Worker dell'admin (Keystatic in modalità GitHub), costruito con `npm run build:admin`.
+// È un Worker separato dal sito pubblico ("cafolavori", vedi wrangler.jsonc) e va protetto con Cloudflare Access.
+// I segreti (KEYSTATIC_GITHUB_CLIENT_ID, KEYSTATIC_GITHUB_CLIENT_SECRET, KEYSTATIC_SECRET) si impostano nella
+// dashboard del Worker come "Secret", non qui.
+{
+  "name": "cafolavori-admin",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"]
+}
