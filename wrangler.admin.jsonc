@@ -6,5 +6,9 @@
   "name": "cafolavori-admin",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-09-01",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  // Solo l'URL workers.dev (protetto da Access); niente URL di anteprima per versione, che sarebbero altri
+  // indirizzi da proteggere.
+  "workers_dev": true,
+  "preview_urls": false
 }
