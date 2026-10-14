@@ -39,7 +39,7 @@
     "js-yaml": "^5.4.2",
     "turndown": "^7.2.4",
     "typescript": "^6.0.3",
-    "wrangler": "^4.147.0"
+    "wrangler": "^4.149.0"
   },
   "private": true
 }
