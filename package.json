@@ -24,7 +24,7 @@
     "@keystatic/core": "^0.6.9",
     "astro": "^7.3.5",
     "astro-pagefind": "^2.0.1",
-    "react": "^19.3.0",
+    "react": "^19.3.1",
     "react-dom": "^19.3.0"
   },
   "allowScripts": {
