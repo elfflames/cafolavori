@@ -16,8 +16,8 @@
     "deploy:admin": "wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^2.0.9",
-    "@astrojs/react": "^7.0.0",
+    "@astrojs/markdoc": "^2.1.1",
+    "@astrojs/react": "^7.1.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@keystatic/astro": "^6.0.0",
@@ -31,8 +31,8 @@
     "esbuild": true
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/cloudflare": "^14.3.3",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/cloudflare": "^14.4.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "cheerio": "^1.2.0",
